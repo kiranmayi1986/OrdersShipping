@@ -1,0 +1,48 @@
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+
+class PlannerTest {
+    private static final Path DATA = Paths.get("data");
+
+    private Planner.Result solve(double lambda) throws Exception {
+        Planner p = new Planner(Model.load(DATA), lambda);
+        Planner.Result r = p.solve(20_000_000L);
+        p.verify(r.plan());   // throws if a line is short-allocated or stock is over-allocated
+        return r;
+    }
+
+    @Test
+    void sampleDataOptimalPlan() throws Exception {
+        Planner.Result r = solve(2.0);
+        assertTrue(r.optimal());
+        assertEquals(3, r.plan().shipments.size());
+        assertEquals(31.0, r.plan().totalCost(), 1e-9);
+        assertEquals(47.0, r.plan().objective, 1e-9);
+        assertEquals(0, r.plan().unfulfilledUnits);
+    }
+
+    @Test
+    void sameCustomerOrdersConsolidateIntoOnePackage() throws Exception {
+        Planner.Plan plan = solve(2.0).plan();
+        long merged = plan.shipments.stream().filter(s -> s.orders().size() > 1).count();
+        assertEquals(2, merged);   // O1+O2 and O3+O5
+    }
+
+    @Test
+    void highDelayWeightSplitsForSpeed() throws Exception {
+        Planner.Plan plan = solve(10.0).plan();
+        assertEquals(4, plan.shipments.size());
+        assertEquals(39.0, plan.totalCost(), 1e-9);
+    }
+
+    @Test
+    void optimumBeatsGreedyBaseline() throws Exception {
+        Planner p = new Planner(Model.load(DATA), 2.0);
+        double greedy = p.evaluate(p.greedy()).objective;
+        assertTrue(p.solve(20_000_000L).plan().objective < greedy);
+    }
+}
