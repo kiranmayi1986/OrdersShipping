@@ -1,0 +1,10 @@
+{
+  "title": "Orders",
+  "orders": [
+    { "order": "O1", "customer": "Cust-1", "ship_to": "CA", "items": [ { "sku": "A", "quantity": 2 } ] },
+    { "order": "O2", "customer": "Cust-1", "ship_to": "CA", "items": [ { "sku": "B", "quantity": 1 } ] },
+    { "order": "O3", "customer": "Cust-2", "ship_to": "NY", "items": [ { "sku": "A", "quantity": 1 }, { "sku": "C", "quantity": 2 } ] },
+    { "order": "O4", "customer": "Cust-3", "ship_to": "TX", "items": [ { "sku": "B", "quantity": 3 }, { "sku": "C", "quantity": 1 } ] },
+    { "order": "O5", "customer": "Cust-2", "ship_to": "NY", "items": [ { "sku": "A", "quantity": 3 } ] }
+  ]
+}
